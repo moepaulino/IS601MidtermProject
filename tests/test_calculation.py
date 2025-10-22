@@ -107,7 +107,7 @@ def test_equality():
     calc3 = Calculation(operation="Subtraction", operand1=Decimal("5"), operand2=Decimal("3"))
     assert calc1 == calc2
     assert calc1 != calc3
-
+    assert (calc1 == "not a calculation") is False
 
 # New Test to Cover Logging Warning
 def test_from_dict_result_mismatch(caplog):
@@ -130,3 +130,27 @@ def test_from_dict_result_mismatch(caplog):
 
     # Assert
     assert "Loaded calculation result 10 differs from computed result 5" in caplog.text
+
+def test_calculation_error_handling():
+    """
+    Force a ValueError inside calculate() to cover the OperationError raise line.
+    """
+    calc = Calculation.__new__(Calculation)
+    calc.operation = "Addition"
+    calc.operand1 = Decimal("2")
+    calc.operand2 = "invalid"
+
+    with pytest.raises(OperationError, match="Calculation failed:"):
+        calc.calculate()
+
+def test_str_and_repr():
+    calc = Calculation(operation="Addition", operand1=Decimal("2"), operand2=Decimal("3"))
+    
+    # Line to test str
+    s = str(calc)
+    assert s == "Addition(2, 3) = 5"
+    
+    # Line to test repr
+    r = repr(calc)
+    assert r.startswith("Calculation(operation='Addition', operand1=2, operand2=3")
+    assert f"result={calc.result}" in r
