@@ -122,6 +122,7 @@ def test_save_history(mock_to_csv, calculator):
 @patch('app.calculator.pd.read_csv')
 @patch('app.calculator.Path.exists', return_value=True)
 def test_load_history(mock_exists, mock_read_csv, calculator):
+
     # Mock CSV data to match the expected format in from_dict
     mock_read_csv.return_value = pd.DataFrame({
         'operation': ['Addition'],
@@ -142,11 +143,29 @@ def test_load_history(mock_exists, mock_read_csv, calculator):
         assert calculator.history[0].operand2 == Decimal("3")
         assert calculator.history[0].result == Decimal("5")
     except OperationError:
-        pytest.fail("Loading history failed due to OperationError")
-        
-            
-# Test Clearing History
+        pytest.fail("Loading history failed due to OperationError")        
 
+@patch('app.calculator.CalculatorConfig.history_file', new_callable=PropertyMock)
+def test_load_history_with_patch(mock_history_file):
+    mock_path = Mock()
+    mock_path.exists.return_value = True
+    mock_history_file.return_value = mock_path
+
+    calc = Calculator(config=CalculatorConfig())
+    # Patch pd.read_csv to avoid file I/O
+    with patch('app.calculator.pd.read_csv') as mock_read_csv:
+        mock_read_csv.return_value = pd.DataFrame({
+            'operation': ['Addition'],
+            'operand1': ['2'],
+            'operand2': ['3'],
+            'result': ['5'],
+            'timestamp': [datetime.datetime.now().isoformat()]
+        })
+        calc.load_history()
+
+    assert len(calc.history) == 1
+
+# Test Clearing History
 def test_clear_history(calculator):
     operation = OperationFactory.create_operation('add')
     calculator.set_operation(operation)
