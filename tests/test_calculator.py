@@ -119,6 +119,14 @@ def test_save_history(mock_to_csv, calculator):
     calculator.save_history()
     mock_to_csv.assert_called_once()
 
+@patch("builtins.input", side_effect=["save", "exit"])
+@patch("builtins.print")
+def test_calculator_repl_save(mock_print, mock_input):
+    with patch('app.calculator.Calculator.save_history') as mock_save_history:
+        calculator_repl()
+        mock_save_history.assert_called()
+        mock_print.assert_any_call("History saved successfully")
+
 @patch('app.calculator.pd.read_csv')
 @patch('app.calculator.Path.exists', return_value=True)
 def test_load_history(mock_exists, mock_read_csv, calculator):
@@ -236,3 +244,16 @@ def test_calculator_repl_undo(mock_print, mock_input):
 def test_calculator_repl_undo_with_history(mock_print, mock_input):
     calculator_repl()
     mock_print.assert_any_call("Operation undone")
+
+@patch("builtins.input", side_effect=["redo", "exit"])
+@patch("builtins.print")
+def test_calculator_repl_redo_empty(mock_print, mock_input):
+    calculator_repl()
+    mock_print.assert_any_call("Nothing to redo")
+
+@patch("builtins.input", side_effect=["add", "2", "3", "undo", "redo", "exit"])
+@patch("builtins.print")
+def test_calculator_repl_redo_with_history(mock_print, mock_input):
+    calculator_repl()
+    mock_print.assert_any_call("Operation redone")
+
