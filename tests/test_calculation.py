@@ -4,7 +4,10 @@ from datetime import datetime
 from app.calculation import Calculation
 from app.exceptions import OperationError
 import logging
-
+from app.calculation import Calculation
+from app.calculator import CalculatorMemento
+from datetime import datetime
+from decimal import Decimal
 
 def test_addition():
     calc = Calculation(operation="Addition", operand1=Decimal("2"), operand2=Decimal("3"))
@@ -109,26 +112,22 @@ def test_equality():
     assert calc1 != calc3
     assert (calc1 == "not a calculation") is False
 
-# New Test to Cover Logging Warning
 def test_from_dict_result_mismatch(caplog):
     """
     Test the from_dict method to ensure it logs a warning when the saved result
     does not match the computed result.
     """
-    # Arrange
     data = {
         "operation": "Addition",
         "operand1": "2",
         "operand2": "3",
-        "result": "10",  # Incorrect result to trigger logging.warning
+        "result": "10",  
         "timestamp": datetime.now().isoformat()
     }
 
-    # Act
     with caplog.at_level(logging.WARNING):
         calc = Calculation.from_dict(data)
 
-    # Assert
     assert "Loaded calculation result 10 differs from computed result 5" in caplog.text
 
 def test_calculation_error_handling():
@@ -146,11 +145,41 @@ def test_calculation_error_handling():
 def test_str_and_repr():
     calc = Calculation(operation="Addition", operand1=Decimal("2"), operand2=Decimal("3"))
     
-    # Line to test str
     s = str(calc)
     assert s == "Addition(2, 3) = 5"
     
-    # Line to test repr
     r = repr(calc)
     assert r.startswith("Calculation(operation='Addition', operand1=2, operand2=3")
     assert f"result={calc.result}" in r
+
+def test_calculator_memento_from_dict():
+
+    calc_data = {
+        "operation": "Addition",
+        "operand1": "2",
+        "operand2": "3",
+        "result": "5",
+        "timestamp": datetime.now().isoformat()
+    }
+    memento_data = {
+        "history": [calc_data],
+        "timestamp": datetime.now().isoformat()
+    }
+
+    memento = CalculatorMemento.from_dict(memento_data)
+
+    assert isinstance(memento, CalculatorMemento)
+    assert len(memento.history) == 1
+    assert memento.history[0].operation == "Addition"
+    assert memento.history[0].operand1 == Decimal("2")
+    assert memento.timestamp.isoformat() == memento_data['timestamp']
+
+def test_calculator_memento_to_dict():
+    calc1 = Calculation(operation="Addition", operand1=Decimal("2"), operand2=Decimal("3"))
+    memento = CalculatorMemento(history=[calc1], timestamp=datetime.now())
+
+    result_dict = memento.to_dict()
+
+    assert "history" in result_dict
+    assert "timestamp" in result_dict
+    assert result_dict["history"][0]["operation"] == "Addition"
