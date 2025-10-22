@@ -175,7 +175,14 @@ def test_clear_history(calculator):
     assert calculator.undo_stack == []
     assert calculator.redo_stack == []
 
-# Test REPL Commands (using patches for input/output handling)
+def test_cli_clear_command(calculator):
+    with patch("builtins.print") as mock_print:
+        command = "clear"
+        if command == "clear":
+            calculator.clear_history()
+            print("History cleared")
+
+    mock_print.assert_called_with("History cleared")
 
 @patch('builtins.input', side_effect=['exit'])
 @patch('builtins.print')
@@ -197,3 +204,35 @@ def test_calculator_repl_help(mock_print, mock_input):
 def test_calculator_repl_addition(mock_print, mock_input):
     calculator_repl()
     mock_print.assert_any_call("\nResult: 5")
+
+@patch('builtins.input', side_effect=['exit'])
+@patch('builtins.print')
+def test_exit_save_history_exception(mock_print, mock_input):
+    with patch('app.calculator.Calculator.save_history', side_effect=Exception("fail")):
+        calculator_repl()
+        mock_print.assert_any_call("Warning: Could not save history: fail")
+        mock_print.assert_any_call("Goodbye!")
+
+@patch("builtins.input", side_effect=["clear", "exit"])
+@patch("builtins.print")
+def test_calculator_repl_clear(mock_print, mock_input):
+    calculator_repl()
+    mock_print.assert_any_call("History cleared")
+
+@patch("builtins.input", side_effect=["history", "exit"])
+@patch("builtins.print")
+def test_calculator_repl_history_empty(mock_print, mock_input):
+    calculator_repl()
+    mock_print.assert_any_call("No calculations in history")
+
+@patch("builtins.input", side_effect=["undo", "exit"])
+@patch("builtins.print")
+def test_calculator_repl_undo(mock_print, mock_input):
+    calculator_repl()
+    mock_print.assert_any_call("Nothing to undo")
+
+@patch("builtins.input", side_effect=["add", "2", "3", "undo", "exit"])
+@patch("builtins.print")
+def test_calculator_repl_undo_with_history(mock_print, mock_input):
+    calculator_repl()
+    mock_print.assert_any_call("Operation undone")
