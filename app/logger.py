@@ -2,6 +2,7 @@
 # Calculator REPL       #
 ########################
 
+from colorama import Fore, init
 from decimal import Decimal
 import logging
 

@@ -22,9 +22,9 @@ Version: 1.0
 
 
 
-
+from colorama import init
 from app.logger import calculator_repl
 
-
+init(autoreset=True)
 if __name__ == "__main__":
     calculator_repl()
