@@ -27,25 +27,25 @@ def calculator_repl():
         calc.add_observer(LoggingObserver())
         calc.add_observer(AutoSaveObserver(calc))
 
-        print("Calculator started. Type 'help' for commands.")
+        print(Fore.LIGHTBLUE_EX + "Calculator started. Type 'help' for commands.")
 
         while True:
             try:
                 # Prompt the user for a command
-                command = input("\nEnter command: ").lower().strip()
+                command = input(Fore.LIGHTMAGENTA_EX + "\nEnter command: ").lower().strip() # Displays in light magenta
 
                 if command == 'help':
-                    # Display available commands
+                    # Display available commands in their respective colors
                     print("\nAvailable commands:")
-                    print("  add, subtract, multiply, divide, power, root - Perform calculations")
-                    print(" modulus, int_divide, percent, abs_diff - More operations")
-                    print("  history - Show calculation history")
-                    print("  clear - Clear calculation history")
-                    print("  undo - Undo the last calculation")
-                    print("  redo - Redo the last undone calculation")
-                    print("  save - Save calculation history to file")
-                    print("  load - Load calculation history from file")
-                    print("  exit - Exit the calculator")
+                    print(Fore.LIGHTYELLOW_EX + "  add, subtract, multiply, divide, power, root - Perform calculations")
+                    print(Fore.RED + " modulus, int_divide, percent, abs_diff - More operations")
+                    print(Fore.LIGHTGREEN_EX + "  history - Show calculation history")
+                    print(Fore.LIGHTBLUE_EX + "  clear - Clear calculation history")
+                    print(Fore.RED + "  undo - Undo the last calculation")
+                    print(Fore.YELLOW + "  redo - Redo the last undone calculation")
+                    print(Fore.LIGHTGREEN_EX + "  save - Save calculation history to file")
+                    print(Fore.MAGENTA + "  load - Load calculation history from file")
+                    print(Fore.BLACK + "  exit - Exit the calculator")
                     continue
 
                 if command == 'exit':
