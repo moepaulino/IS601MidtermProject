@@ -12,6 +12,10 @@ from app.operations import (
     Power,
     Root,
     OperationFactory,
+    Modulus,
+    IntegerDivision,
+    Percentage,
+    AbsoluteDifference
 )
 
 
@@ -225,3 +229,61 @@ class TestOperationFactory:
 
         with pytest.raises(TypeError, match="Operation class must inherit"):
             OperationFactory.register_operation("invalid", InvalidOperation)
+
+class TestModulus(BaseOperationTest):
+    """Test Modulus operation."""
+    operation_class = Modulus
+    valid_test_cases = {
+        "positive_numbers": {"a": "10", "b": "3", "expected": "1"},
+        "negative_numbers": {"a": "-10", "b": "3", "expected": "-1"},
+        "zero_dividend": {"a": "0", "b": "5", "expected": "0"},
+    }
+    invalid_test_cases = {
+        "mod_by_zero": {
+            "a": "5",
+            "b": "0",
+            "error": ValidationError,
+            "message": "Modulus by zero is not allowed"
+        },
+    }
+
+
+class TestIntegerDivision(BaseOperationTest):
+    """Test IntegerDivision operation."""
+    operation_class = IntegerDivision
+    valid_test_cases = {
+        "positive_numbers": {"a": "10", "b": "3", "expected": "3"},
+        "negative_numbers": {"a": "-10", "b": "3", "expected": "-4"},
+        "zero_dividend": {"a": "0", "b": "5", "expected": "0"},
+    }
+    invalid_test_cases = {
+        "divide_by_zero": {
+            "a": "5",
+            "b": "0",
+            "error": ValidationError,
+            "message": "Division by zero is not allowed"
+        },
+    }
+
+
+class TestPercent(BaseOperationTest):
+    """Test Percent operation."""
+    operation_class = Percentage
+    valid_test_cases = {
+        "simple": {"a": "50", "b": "10", "expected": "5"},
+        "zero_percent": {"a": "50", "b": "0", "expected": "0"},
+        "hundred_percent": {"a": "50", "b": "100", "expected": "50"},
+        "decimals": {"a": "12.5", "b": "8", "expected": "1"},
+    }
+    invalid_test_cases = {}
+
+
+class TestAbsoluteDifference(BaseOperationTest):
+    """Test AbsoluteDifference operation."""
+    operation_class = AbsoluteDifference
+    valid_test_cases = {
+        "positive_difference": {"a": "10", "b": "3", "expected": "7"},
+        "negative_difference": {"a": "3", "b": "10", "expected": "7"},
+        "zero_difference": {"a": "5", "b": "5", "expected": "0"},
+    }
+    invalid_test_cases = {}
