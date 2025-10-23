@@ -280,7 +280,6 @@ class Percentage(Operation):
     """
 
     def execute(self, a: Decimal, b: Decimal) -> Decimal:
-        # Example: 5% of 100 = (5 * 100) / 100 = 5
         return (a / 100) * b
 
 
