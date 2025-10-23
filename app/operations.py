@@ -3,9 +3,9 @@
 ########################
 
 from abc import ABC, abstractmethod
-from decimal import Decimal
+from decimal import Decimal, ROUND_FLOOR
 from typing import Dict
-from app.exceptions import ValidationError
+from app.exceptions import ValidationError, OperationError
 
 
 class Operation(ABC):
@@ -248,7 +248,51 @@ class Root(Operation):
         self.validate_operands(a, b)
         return Decimal(pow(float(a), 1 / float(b)))
 
+class Modulus(Operation):
+    """
+    Computes the remainder of the division of two numbers.
+    """
 
+    def validate_operands(self, a: Decimal, b: Decimal) -> None:
+        super().validate_operands(a, b)
+        if b == 0:
+            raise ValidationError("Modulus by zero is not allowed")
+
+    def execute(self, a: Decimal, b: Decimal) -> Decimal:
+        self.validate_operands(a, b)
+        return a % b
+
+
+class IntegerDivision(Operation):
+    """Performs floor (integer) division correctly for both positive and negative numbers."""
+    
+    def execute(self, a: Decimal, b: Decimal) -> Decimal:
+        if b == 0:
+            raise ValidationError("Division by zero is not allowed")
+        a = Decimal(a)
+        b = Decimal(b)
+        result = (a / b).to_integral_value(rounding=ROUND_FLOOR)
+        return result
+
+class Percentage(Operation):
+    """
+    Computes what percentage 'a' is of 'b': (a / b) * 100.
+    """
+
+    def execute(self, a: Decimal, b: Decimal) -> Decimal:
+        # Example: 5% of 100 = (5 * 100) / 100 = 5
+        return (a / 100) * b
+
+
+class AbsoluteDifference(Operation):
+    """
+    Computes the absolute difference between two numbers.
+    """
+
+    def execute(self, a: Decimal, b: Decimal) -> Decimal:
+        self.validate_operands(a, b)
+        return abs(a - b)
+   
 class OperationFactory:
     """
     Factory class for creating operation instances.
@@ -265,8 +309,13 @@ class OperationFactory:
         'multiply': Multiplication,
         'divide': Division,
         'power': Power,
-        'root': Root
+        'root': Root,
+        'modulus': Modulus,
+        'int_divide': IntegerDivision,
+        'percent': Percentage,
+        'abs_diff': AbsoluteDifference
     }
+    print("Registered operations:", list(_operations.keys()))
 
     @classmethod
     def register_operation(cls, name: str, operation_class: type) -> None:
