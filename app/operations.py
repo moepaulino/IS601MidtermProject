@@ -280,9 +280,10 @@ class Percentage(Operation):
     """
 
     def execute(self, a: Decimal, b: Decimal) -> Decimal:
-        return (a / 100) * b
-
-
+        if b == 0:
+            raise ValidationError("Division by zero is not allowed")
+        return ((a / b) * 100)
+    
 class AbsoluteDifference(Operation):
     """
     Computes the absolute difference between two numbers.

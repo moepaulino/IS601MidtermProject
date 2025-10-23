@@ -267,15 +267,25 @@ class TestIntegerDivision(BaseOperationTest):
 
 
 class TestPercent(BaseOperationTest):
-    """Test Percent operation."""
+    """Test Percent operation using (a / b) * 100 formula."""
+    
     operation_class = Percentage
+    
     valid_test_cases = {
-        "simple": {"a": "50", "b": "10", "expected": "5"},
-        "zero_percent": {"a": "50", "b": "0", "expected": "0"},
-        "hundred_percent": {"a": "50", "b": "100", "expected": "50"},
-        "decimals": {"a": "12.5", "b": "8", "expected": "1"},
+        "simple": {"a": "50", "b": "10", "expected": "500"},      # 50 / 10 * 100 = 500
+        "zero_numerator": {"a": "0", "b": "10", "expected": "0"}, # 0 / 10 * 100 = 0
+        "hundred": {"a": "50", "b": "50", "expected": "100"},     # 50 / 50 * 100 = 100
+        "decimals": {"a": "12.5", "b": "8", "expected": "156.25"} # 12.5 / 8 * 100 = 156.25
     }
-    invalid_test_cases = {}
+    
+    invalid_test_cases = {
+        "zero_division": {
+            "a": "50", 
+            "b": "0", 
+            "error": ValidationError,
+            "message": "Division by zero is not allowed"
+            },
+    }
 
 
 class TestAbsoluteDifference(BaseOperationTest):
@@ -286,4 +296,4 @@ class TestAbsoluteDifference(BaseOperationTest):
         "negative_difference": {"a": "3", "b": "10", "expected": "7"},
         "zero_difference": {"a": "5", "b": "5", "expected": "0"},
     }
-    invalid_test_cases = {}
+    invalid_test_cases = {} # No invalid cases for absolute difference
