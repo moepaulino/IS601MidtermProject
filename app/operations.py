@@ -315,7 +315,6 @@ class OperationFactory:
         'percent': Percentage,
         'abs_diff': AbsoluteDifference
     }
-    print("Registered operations:", list(_operations.keys()))
 
     @classmethod
     def register_operation(cls, name: str, operation_class: type) -> None:
